@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    image: ecommerce-backend:local
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    image: ecommerce-frontend:local
+    environment:
+      VITE_API_URL: http://localhost:3001/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: unless-stopped
