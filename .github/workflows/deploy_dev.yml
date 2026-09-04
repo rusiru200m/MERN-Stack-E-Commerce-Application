@@ -178,10 +178,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          # ssh -o IdentitiesOnly=yes \
-          #   -i ~/.ssh/id_rsa \
-          #   "$DO_USERNAME@$DO_HOST" \
-          #   'mkdir -p /var/www/ecommerce'
+          ssh -o IdentitiesOnly=yes \
+            -i ~/.ssh/id_rsa \
+            "$DO_USERNAME@$DO_HOST" \
+            'mkdir -p /var/www/ecommerce'
 
 
          
