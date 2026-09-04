@@ -8,6 +8,10 @@ on:
         required: true
         default: v1.0.0
         type: string
+  push:
+    branches:
+      - feature/ci-cd-for-dev
+    
 
 permissions:
   contents: read
