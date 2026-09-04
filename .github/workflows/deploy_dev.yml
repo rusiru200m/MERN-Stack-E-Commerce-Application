@@ -152,20 +152,35 @@ jobs:
 
       - name: Setup SSH
         shell: bash
+        env:
+          DO_HOST: ${{ secrets.DO_HOST }}
+          DO_USERNAME: ${{ secrets.DO_USERNAME }}
+          DO_SSH_KEY: ${{ secrets.DO_SSH_KEY }}
         run: |
+          set -euo pipefail
+
+          if [[ -z "$DO_HOST" || -z "$DO_USERNAME" || -z "$DO_SSH_KEY" ]]; then
+            echo "DO_HOST, DO_USERNAME, and DO_SSH_KEY must be configured in the selected GitHub environment."
+            exit 1
+          fi
+
           mkdir -p ~/.ssh
-          echo "${{ secrets.DO_SSH_KEY }}"
-          echo "${{ secrets.DO_HOST }}"
-          printf '%s\n' '${{ secrets.DO_SSH_KEY }}' > ~/.ssh/id_rsa
+          printf '%s\n' "$DO_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H '${{ secrets.DO_HOST }}' >> ~/.ssh/known_hosts
+          ssh-keyscan -H "$DO_HOST" >> ~/.ssh/known_hosts
 
 
       - name: Copy deployment files
         shell: bash
+        env:
+          DO_HOST: ${{ secrets.DO_HOST }}
+          DO_USERNAME: ${{ secrets.DO_USERNAME }}
         run: |
-          ssh -i ~/.ssh/id_rsa \
-            '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
+          set -euo pipefail
+
+          ssh -o IdentitiesOnly=yes \
+            -i ~/.ssh/id_rsa \
+            "$DO_USERNAME@$DO_HOST" \
             'mkdir -p /var/www/ecommerce'
 
 
