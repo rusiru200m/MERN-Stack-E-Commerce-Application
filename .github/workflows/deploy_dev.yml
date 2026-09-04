@@ -157,20 +157,27 @@ jobs:
 
 
 
-      # - name: Copy deployment files
-      #   shell: bash
-      #   run: |
-      #     ssh -i ~/.ssh/id_rsa \
-      #       '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
-      #       'mkdir -p /var/www/ecommerce'
+      - name: Copy deployment files
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+            '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
+            'mkdir -p /var/www/ecommerce'
 
-      #     scp -i ~/.ssh/id_rsa \
-      #       deploy/docker-compose.production.yml \
-      #       '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/docker-compose.yml'
 
-      #     scp -i ~/.ssh/id_rsa \
-      #       deploy/nginx.conf \
-      #       '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/nginx.conf'
+          # scp -i ~/.ssh/id_rsa \
+          #   deploy/docker-compose.production.yml \
+          #   '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/docker-compose.yml'
+
+
+
+          # scp -i ~/.ssh/id_rsa \
+          #   deploy/nginx.conf \
+          #   '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/nginx.conf'
+
+
+
+
 
       # - name: Deploy to DigitalOcean VPS
       #   shell: bash
