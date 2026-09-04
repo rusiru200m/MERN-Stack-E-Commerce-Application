@@ -169,14 +169,7 @@ jobs:
             'mkdir -p /var/www/ecommerce'
 
 
-          # scp -i ~/.ssh/id_rsa \
-          #   deploy/docker-compose.production.yml \
-          #   '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/docker-compose.yml'
-
-          # scp -i ~/.ssh/id_rsa \
-          #   deploy/nginx.conf \
-          #   '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/nginx.conf'
-
+         
       # - name: Deploy to DigitalOcean VPS
       #   shell: bash
       #   env:
