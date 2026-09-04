@@ -147,13 +147,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - name: Setup SSH
-      #   shell: bash
-      #   run: |
-      #     mkdir -p ~/.ssh
-      #     printf '%s\n' '${{ secrets.DO_SSH_KEY }}' > ~/.ssh/id_rsa
-      #     chmod 600 ~/.ssh/id_rsa
-      #     ssh-keyscan -H '${{ secrets.DO_HOST }}' >> ~/.ssh/known_hosts
+      - name: Setup SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' '${{ secrets.DO_SSH_KEY }}' > ~/.ssh/id_rsa
+          # chmod 600 ~/.ssh/id_rsa
+          # ssh-keyscan -H '${{ secrets.DO_HOST }}' >> ~/.ssh/known_hosts
 
       # - name: Copy deployment files
       #   shell: bash
