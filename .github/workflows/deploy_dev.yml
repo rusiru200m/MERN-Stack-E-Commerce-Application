@@ -151,9 +151,9 @@ jobs:
         shell: bash
         run: |
           mkdir -p ~/.ssh
-          echo '%s\n' '${{ secrets.DO_SSH_KEY }}' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H '${{ secrets.DO_HOST }}' >> ~/.ssh/known_hosts
+          echo '%s\n' '${{ secrets.DO_SSH_KEY }}' > ~/.ssh/id_rsa_test
+          chmod 600 ~/.ssh/id_rsa_test
+          # ssh-keyscan -H '${{ secrets.DO_HOST }}' >> ~/.ssh/known_hosts
 
 
       # - name: Copy deployment files
