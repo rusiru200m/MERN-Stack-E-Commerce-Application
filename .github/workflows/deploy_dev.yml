@@ -215,12 +215,12 @@ jobs:
               --username "$GHCR_USERNAME" \
               --password-stdin
 
-            cat > .env <<EOF
-                        GHCR_NAMESPACE=${GHCR_NAMESPACE}
-                        IMAGE_TAG=${IMAGE_TAG}
-                        ENVIRONMENT=${ENVIRONMENT}
-                        EOF
+            rm -f .env
+            printf 'GHCR_NAMESPACE=%s\nIMAGE_TAG=%s\nENVIRONMENT=%s\n' \
+              "$GHCR_NAMESPACE" "$IMAGE_TAG" "$ENVIRONMENT" > .env
+            chmod 600 .env
 
+            docker compose --env-file .env config
             docker compose --env-file .env pull
             docker compose --env-file .env up -d --remove-orphans
 
