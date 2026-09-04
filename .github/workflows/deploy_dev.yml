@@ -1,4 +1,4 @@
-name: Build and Deplo
+name: Build and Deploy
 
 on:
   push:
@@ -159,16 +159,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ -z "$DO_HOST" || -z "$DO_USERNAME" || -z "$DO_SSH_KEY" ]]; then
-            echo "DO_HOST, DO_USERNAME, and DO_SSH_KEY must be configured in the selected GitHub environment."
-            exit 1
-          fi
-
           mkdir -p ~/.ssh
-          printf '%s\n' "$DO_SSH_KEY" > ~/.ssh/id_rsa
+          echo "$DO_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$DO_HOST" >> ~/.ssh/known_hosts
-
 
       - name: Copy deployment files
         shell: bash
@@ -179,6 +173,8 @@ jobs:
           set -euo pipefail
 
           ssh -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=10 \
             -i ~/.ssh/id_rsa \
             "$DO_USERNAME@$DO_HOST" \
             'mkdir -p /var/www/ecommerce'
