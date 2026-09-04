@@ -3,9 +3,9 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - feature/ci-cd-for-dev
-      - develop
-      - main
+      - dev
+      - qa
+      - production
 
 permissions:
   contents: read
@@ -31,16 +31,16 @@ jobs:
 
           case "${GITHUB_REF_NAME}" in
 
-            feature/ci-cd-for-dev)
+            dev)
               ENVIRONMENT="dev"
               ;;
 
-            develop)
-              ENVIRONMENT="staging"
+            qa)
+              ENVIRONMENT="qa"
               ;;
 
             main)
-              ENVIRONMENT="prod"
+              ENVIRONMENT="production"
               ;;
 
             *)
