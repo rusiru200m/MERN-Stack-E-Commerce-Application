@@ -158,11 +158,11 @@ jobs:
 
 
       - name: Copy deployment files
-        shell: bash
-        run: |
-          ssh -i ~/.ssh/id_rsa \
-            '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
-            'mkdir -p /var/www/ecommerce'
+          shell: bash
+          run: |
+            ssh -i ~/.ssh/id_rsa \
+              "${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}" \
+              "mkdir -p /var/www/ecommerce"
 
 
           # scp -i ~/.ssh/id_rsa \
