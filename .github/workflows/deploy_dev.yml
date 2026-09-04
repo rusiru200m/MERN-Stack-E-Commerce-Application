@@ -216,10 +216,10 @@ jobs:
               --password-stdin
 
             cat > .env <<EOF
-            GHCR_NAMESPACE=${GHCR_NAMESPACE}
-            IMAGE_TAG=${IMAGE_TAG}
-            ENVIRONMENT=${ENVIRONMENT}
-            EOF
+                        GHCR_NAMESPACE=${GHCR_NAMESPACE}
+                        IMAGE_TAG=${IMAGE_TAG}
+                        ENVIRONMENT=${ENVIRONMENT}
+                        EOF
 
             docker compose --env-file .env pull
             docker compose --env-file .env up -d --remove-orphans
