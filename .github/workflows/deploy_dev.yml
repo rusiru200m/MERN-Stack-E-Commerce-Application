@@ -135,107 +135,76 @@ jobs:
           tags: |
             ghcr.io/${{ env.GHCR_NAMESPACE }}/ecommerce-frontend:${{ needs.determine_environment.outputs.image_tag }}
 
+  deploy:
+    name: Deploy to DigitalOcean VPS
+    needs:
+      - determine_environment
+      - build_push
 
-  
-  # deploy:
-  #   name: Deploy to AKS
-  #   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-  #   needs:
-  #     - determine_environment
-  #     - build_push
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  #   environment:
-  #     name: ${{ needs.determine_environment.outputs.environment }}
+      # - name: Setup SSH
+      #   shell: bash
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     printf '%s\n' '${{ secrets.DO_SSH_KEY }}' > ~/.ssh/id_rsa
+      #     chmod 600 ~/.ssh/id_rsa
+      #     ssh-keyscan -H '${{ secrets.DO_HOST }}' >> ~/.ssh/known_hosts
 
-  #   steps:
+      # - name: Copy deployment files
+      #   shell: bash
+      #   run: |
+      #     ssh -i ~/.ssh/id_rsa \
+      #       '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
+      #       'mkdir -p /var/www/ecommerce'
 
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
+      #     scp -i ~/.ssh/id_rsa \
+      #       deploy/docker-compose.production.yml \
+      #       '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/docker-compose.yml'
 
-  #     # ----------------------------------------------
-  #     # Azure Login
-  #     # ----------------------------------------------
-  #     - name: Azure Login
-  #       uses: azure/login@v2
-  #       with:
-  #         creds: |
-  #           {
-  #             "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
-  #             "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
-  #             "tenantId": "${{ secrets.AZURE_TENANT_ID }}",
-  #             "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-  #           }
+      #     scp -i ~/.ssh/id_rsa \
+      #       deploy/nginx.conf \
+      #       '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/nginx.conf'
 
-  #     # ----------------------------------------------
-  #     # Get AKS credentials
-  #     # ----------------------------------------------
-  #     - name: Get AKS credentials
-  #       run: |
-  #         az aks get-credentials \
-  #           --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
-  #           --name "${{ secrets.AKS_CLUSTER_NAME }}" \
-  #           --overwrite-existing
+      # - name: Deploy to DigitalOcean VPS
+      #   shell: bash
+      #   env:
+      #     IMAGE_TAG: ${{ needs.determine_environment.outputs.image_tag }}
+      #     ENVIRONMENT: ${{ needs.determine_environment.outputs.environment }}
+      #   run: |
+      #     ssh -i ~/.ssh/id_rsa \
+      #       '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
+      #       "IMAGE_TAG='${IMAGE_TAG}' \
+      #        ENVIRONMENT='${ENVIRONMENT}' \
+      #        GHCR_NAMESPACE='${{ env.GHCR_NAMESPACE }}' \
+      #        GHCR_USERNAME='${{ secrets.GHCR_USERNAME }}' \
+      #        GHCR_TOKEN='${{ secrets.GHCR_READ_TOKEN }}' \
+      #        bash -s" <<'REMOTE_SCRIPT'
 
-  #     # ----------------------------------------------
-  #     # Deploy Namespace
-  #     # ----------------------------------------------
-  #     - name: Deploy namespace
-  #       run: |
-  #         kubectl apply \
-  #           -f k8s/${{ needs.determine_environment.outputs.environment }}/namespace.yaml
+      #       set -euo pipefail
 
-  #     # ----------------------------------------------
-  #     # Deploy Application
-  #     # ----------------------------------------------
-  #     - name: Deploy application
-  #       run: |
+      #       APP_DIR="/var/www/ecommerce"
+      #       cd "$APP_DIR"
 
-  #         ENVIRONMENT="${{ needs.determine_environment.outputs.environment }}"
-  #         IMAGE_TAG="${{ needs.determine_environment.outputs.image_tag }}"
+      #       echo "$GHCR_TOKEN" | docker login ghcr.io \
+      #         --username "$GHCR_USERNAME" \
+      #         --password-stdin
 
-  #         BACKEND_IMAGE="ghcr.io/${{ env.GHCR_NAMESPACE }}/ecommerce-backend:${IMAGE_TAG}"
-  #         FRONTEND_IMAGE="ghcr.io/${{ env.GHCR_NAMESPACE }}/ecommerce-frontend:${IMAGE_TAG}"
+      #       cat > .env <<EOF
+      #       GHCR_NAMESPACE=${GHCR_NAMESPACE}
+      #       IMAGE_TAG=${IMAGE_TAG}
+      #       ENVIRONMENT=${ENVIRONMENT}
+      #       EOF
 
-  #         echo "Environment: ${ENVIRONMENT}"
-  #         echo "Backend: ${BACKEND_IMAGE}"
-  #         echo "Frontend: ${FRONTEND_IMAGE}"
+      #       docker compose --env-file .env pull
+      #       docker compose --env-file .env up -d --remove-orphans
 
-  #         sed \
-  #           -e "s|BACKEND_IMAGE_PLACEHOLDER|${BACKEND_IMAGE}|g" \
-  #           -e "s|FRONTEND_IMAGE_PLACEHOLDER|${FRONTEND_IMAGE}|g" \
-  #           k8s/${ENVIRONMENT}/deployment.yaml \
-  #           | kubectl apply -f -
+      #       docker image prune -af
+      #       docker compose ps
 
-  #     # ----------------------------------------------
-  #     # Deploy Services
-  #     # ----------------------------------------------
-  #     - name: Deploy services
-  #       run: |
-  #         kubectl apply \
-  #           -f k8s/${{ needs.determine_environment.outputs.environment }}/service.yaml
+      #     REMOTE_SCRIPT
 
-  #     # ----------------------------------------------
-  #     # Verify deployment
-  #     # ----------------------------------------------
-  #     - name: Verify rollout
-  #       run: |
-
-  #         ENVIRONMENT="${{ needs.determine_environment.outputs.environment }}"
-
-  #         kubectl rollout status \
-  #           deployment/ecommerce-backend \
-  #           -n ecommerce-${ENVIRONMENT} \
-  #           --timeout=180s
-
-  #         kubectl rollout status \
-  #           deployment/ecommerce-frontend \
-  #           -n ecommerce-${ENVIRONMENT} \
-  #           --timeout=180s
-
-  #     - name: Show Kubernetes resources
-  #       run: |
-  #         ENVIRONMENT="${{ needs.determine_environment.outputs.environment }}"
-
-  #         kubectl get pods -n ecommerce-${ENVIRONMENT}
-  #         kubectl get svc -n ecommerce-${ENVIRONMENT}
