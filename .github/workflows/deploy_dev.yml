@@ -160,22 +160,43 @@ jobs:
           set -euo pipefail
 
           mkdir -p ~/.ssh
-          echo "$DO_SSH_KEY" > ~/.ssh/id_rsa
+          
+          # Write SSH key with proper handling of newlines
+          echo "$DO_SSH_KEY" | base64 -d > ~/.ssh/id_rsa 2>/dev/null || echo "$DO_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$DO_HOST" >> ~/.ssh/known_hosts
+          
+          # Verify SSH key is valid
+          if ! ssh-keygen -l -f ~/.ssh/id_rsa > /dev/null 2>&1; then
+            echo "ERROR: Invalid SSH key format"
+            exit 1
+          fi
+          
+          # Add host to known_hosts with timeout and error checking
+          if ! ssh-keyscan -T 10 "$DO_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+            echo "WARNING: ssh-keyscan failed, continuing anyway"
+          fi
+          
+          # Set correct permissions for known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          
+          # Test SSH connection
+          if ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_rsa "$DO_USERNAME@$DO_HOST" echo "SSH connection successful"; then
+            echo "ERROR: SSH connection test failed"
+            exit 1
+          fi
 
 
-      - name: Copy deployment files
-        shell: bash
-        env:
-          DO_HOST: ${{ secrets.DO_HOST }}
-          DO_USERNAME: ${{ secrets.DO_USERNAME }}
-        run: |
-          set -euo pipefail
+      # - name: Copy deployment files
+      #   shell: bash
+      #   env:
+      #     DO_HOST: ${{ secrets.DO_HOST }}
+      #     DO_USERNAME: ${{ secrets.DO_USERNAME }}
+      #   run: |
+      #     set -euo pipefail
 
-          ssh -i ~/.ssh/id_rsa \
-            "$DO_USERNAME@$DO_HOST" \
-            'mkdir -p /var/www/ecommerce'
+      #     ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_rsa \
+      #       "$DO_USERNAME@$DO_HOST" \
+      #       'mkdir -p /var/www/ecommerce && echo "Directory created successfully"'
 
 
          
