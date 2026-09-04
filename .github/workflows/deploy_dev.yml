@@ -183,9 +183,9 @@ jobs:
 
 
 
-          # scp -i ~/.ssh/id_rsa \
-          #   deploy/nginx.conf \
-          #   '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/nginx.conf'
+          scp -i ~/.ssh/id_rsa \
+            deploy/nginx.conf \
+            '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/nginx.conf'
 
 
 
