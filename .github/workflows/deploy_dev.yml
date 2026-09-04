@@ -141,6 +141,11 @@ jobs:
       - determine_environment
       - build_push
 
+
+    environment:
+      name: ${{ needs.determine_environment.outputs.environment }}
+
+
     runs-on: ubuntu-latest
 
     steps:
