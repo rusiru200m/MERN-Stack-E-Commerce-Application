@@ -166,10 +166,10 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           
           # Verify SSH key is valid
-          # if ! ssh-keygen -l -f ~/.ssh/id_rsa > /dev/null 2>&1; then
-          #   echo "ERROR: Invalid SSH key format"
-          #   exit 1
-          # fi
+          if ! ssh-keygen -l -f ~/.ssh/id_rsa > /dev/null 2>&1; then
+            echo "ERROR: Invalid SSH key format"
+            exit 1
+          fi
           
           # Add host to known_hosts with timeout and error checking
           # if ! ssh-keyscan -T 10 "$DO_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
