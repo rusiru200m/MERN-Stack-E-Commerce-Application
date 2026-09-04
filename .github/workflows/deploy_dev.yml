@@ -164,7 +164,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$DO_HOST" >> ~/.ssh/known_hosts
 
-
       - name: Copy deployment files
         shell: bash
         env:
