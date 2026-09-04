@@ -196,11 +196,13 @@ jobs:
         env:
           IMAGE_TAG: ${{ needs.determine_environment.outputs.image_tag }}
           ENVIRONMENT: ${{ needs.determine_environment.outputs.environment }}
+          DO_HOST: ${{ secrets.DO_HOST }}
         run: |
           ssh -i ~/.ssh/id_rsa \
             '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
             "IMAGE_TAG='${IMAGE_TAG}' \
              ENVIRONMENT='${ENVIRONMENT}' \
+             DO_HOST='${DO_HOST}' \
              GHCR_NAMESPACE='${{ env.GHCR_NAMESPACE }}' \
              GHCR_USERNAME='${{ secrets.GHCR_USERNAME }}' \
              GHCR_TOKEN='${{ secrets.GHCR_READ_TOKEN }}' \
@@ -216,8 +218,8 @@ jobs:
               --password-stdin
 
             rm -f .env
-            printf 'GHCR_NAMESPACE=%s\nIMAGE_TAG=%s\nENVIRONMENT=%s\n' \
-              "$GHCR_NAMESPACE" "$IMAGE_TAG" "$ENVIRONMENT" > .env
+            printf 'GHCR_NAMESPACE=%s\nIMAGE_TAG=%s\nENVIRONMENT=%s\nBACKEND_PUBLIC_URL=%s\n' \
+              "$GHCR_NAMESPACE" "$IMAGE_TAG" "$ENVIRONMENT" "http://${DO_HOST}:3001/api" > .env
             chmod 600 .env
 
             docker compose --env-file .env config
