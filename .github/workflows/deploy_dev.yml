@@ -170,18 +170,18 @@ jobs:
           ssh-keyscan -H "$DO_HOST" >> ~/.ssh/known_hosts
 
 
-      # - name: Copy deployment files
-      #   shell: bash
-      #   env:
-      #     DO_HOST: ${{ secrets.DO_HOST }}
-      #     DO_USERNAME: ${{ secrets.DO_USERNAME }}
-      #   run: |
-      #     set -euo pipefail
+      - name: Copy deployment files
+        shell: bash
+        env:
+          DO_HOST: ${{ secrets.DO_HOST }}
+          DO_USERNAME: ${{ secrets.DO_USERNAME }}
+        run: |
+          set -euo pipefail
 
-      #     ssh -o IdentitiesOnly=yes \
-      #       -i ~/.ssh/id_rsa \
-      #       "$DO_USERNAME@$DO_HOST" \
-      #       'mkdir -p /var/www/ecommerce'
+          # ssh -o IdentitiesOnly=yes \
+          #   -i ~/.ssh/id_rsa \
+          #   "$DO_USERNAME@$DO_HOST" \
+          #   'mkdir -p /var/www/ecommerce'
 
 
          
