@@ -135,35 +135,56 @@ jobs:
           tags: |
             ghcr.io/${{ env.GHCR_NAMESPACE }}/ecommerce-frontend:${{ needs.determine_environment.outputs.image_tag }}
 
-  deploy:
-    name: Deploy to DigitalOcean VPS
-    needs:
-      - determine_environment
-      - build_push
+deploy:
+  name: Deploy to DigitalOcean VPS
 
-    runs-on: ubuntu-latest
+  needs:
+    - determine_environment
+    - build_push
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  runs-on: ubuntu-latest
 
-      - name: Setup SSH
-        shell: bash
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' '${{ secrets.DO_SSH_KEY }}' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
+    - name: Setup SSH
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        printf '%s\n' '${{ secrets.DO_SSH_KEY }}' > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
 
+    - name: Check deployment secrets
+      shell: bash
+      run: |
+        if [ -z "${{ secrets.DO_USERNAME }}" ]; then
+          echo "❌ DO_USERNAME is EMPTY"
+          exit 1
+        else
+          echo "✅ DO_USERNAME exists"
+        fi
 
-      - name: Copy deployment files
-          shell: bash
-          run: |
-            ssh -i ~/.ssh/id_rsa \
-              "${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}" \
-              "mkdir -p /var/www/ecommerce"
+        if [ -z "${{ secrets.DO_HOST }}" ]; then
+          echo "❌ DO_HOST is EMPTY"
+          exit 1
+        else
+          echo "✅ DO_HOST exists"
+        fi
 
+        if [ -z "${{ secrets.DO_SSH_KEY }}" ]; then
+          echo "❌ DO_SSH_KEY is EMPTY"
+          exit 1
+        else
+          echo "✅ DO_SSH_KEY exists"
+        fi
+
+    - name: Copy deployment files
+      shell: bash
+      run: |
+        ssh -i ~/.ssh/id_rsa \
+          "${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}" \
+          "mkdir -p /var/www/ecommerce"
 
           # scp -i ~/.ssh/id_rsa \
           #   deploy/docker-compose.production.yml \
