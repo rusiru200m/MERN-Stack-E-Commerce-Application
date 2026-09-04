@@ -14,9 +14,6 @@ services:
     expose:
       - "3001"
 
-    ports:
-      - "3001:3001"
-
     networks:
       - ecommerce
 
@@ -26,34 +23,32 @@ services:
     restart: unless-stopped
 
     environment:
-      VITE_API_URL: ${BACKEND_PUBLIC_URL:-http://localhost:3001/api}
+      VITE_API_URL: /api
 
     expose:
       - "5173"
 
-    ports:
-      - "5173:5173"
-
     networks:
       - ecommerce
 
-  # nginx:
-  #   image: nginx:1.27-alpine
-  #   container_name: ecommerce-nginx
-  #   restart: unless-stopped
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: ecommerce-nginx
+    restart: unless-stopped
 
-  #   ports:
-  #     - "80:80"
+    ports:
+      - "80:80"
+      - "443:443"
 
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
-  #   depends_on:
-  #     - frontend
-  #     - backend
+    depends_on:
+      - backend
+      - frontend
 
-  #   networks:
-  #     - ecommerce
+    networks:
+      - ecommerce
 
 networks:
   ecommerce:
