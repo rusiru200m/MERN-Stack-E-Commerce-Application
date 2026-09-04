@@ -143,6 +143,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: ${{ needs.determine_environment.outputs.environment }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
