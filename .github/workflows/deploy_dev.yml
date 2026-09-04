@@ -172,10 +172,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          ssh -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=accept-new \
-            -o ConnectTimeout=10 \
-            -i ~/.ssh/id_rsa \
+          ssh -i ~/.ssh/id_rsa \
             "$DO_USERNAME@$DO_HOST" \
             'mkdir -p /var/www/ecommerce'
 
