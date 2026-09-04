@@ -178,7 +178,7 @@ jobs:
 
 
           scp -i ~/.ssh/id_rsa \
-            deploy/docker-compose.production.yml \
+            deploy/docker-compose.dev.yml \
             '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}:/var/www/ecommerce/docker-compose.yml'
 
 
