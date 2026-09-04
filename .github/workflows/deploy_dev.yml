@@ -5,7 +5,7 @@ on:
     branches:
       - dev
       - qa
-      - production
+      - main
 
 permissions:
   contents: read
@@ -113,6 +113,10 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
+          cache-from: type=gha,scope=ecommerce-backend
+          cache-to: type=gha,mode=max,scope=ecommerce-backend
+          provenance: false
+          progress: plain
           tags: |
             ghcr.io/${{ env.GHCR_NAMESPACE }}/ecommerce-backend:${{ needs.determine_environment.outputs.image_tag }}
 
@@ -123,6 +127,10 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
+          cache-from: type=gha,scope=ecommerce-frontend
+          cache-to: type=gha,mode=max,scope=ecommerce-frontend
+          provenance: false
+          progress: plain
           tags: |
             ghcr.io/${{ env.GHCR_NAMESPACE }}/ecommerce-frontend:${{ needs.determine_environment.outputs.image_tag }}
 
