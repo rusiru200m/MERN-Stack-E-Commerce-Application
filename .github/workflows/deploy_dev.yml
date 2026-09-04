@@ -161,12 +161,12 @@ jobs:
           ssh-keyscan -H '${{ secrets.DO_HOST }}' >> ~/.ssh/known_hosts
 
 
-      # - name: Copy deployment files
-      #   shell: bash
-      #   run: |
-      #     ssh -i ~/.ssh/id_rsa \
-      #       '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
-      #       'mkdir -p /var/www/ecommerce'
+      - name: Copy deployment files
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+            '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
+            'mkdir -p /var/www/ecommerce'
 
 
           # scp -i ~/.ssh/id_rsa \
