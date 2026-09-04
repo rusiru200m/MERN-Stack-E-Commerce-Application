@@ -179,7 +179,7 @@ jobs:
           # Set correct permissions for known_hosts
           chmod 644 ~/.ssh/known_hosts
           
-          Test SSH connection
+          # Test SSH connection
           if ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_rsa "$DO_USERNAME@$DO_HOST" echo "SSH connection successful"; then
             echo "ERROR: SSH connection test failed"
             exit 1
