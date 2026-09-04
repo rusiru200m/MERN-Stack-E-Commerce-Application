@@ -156,32 +156,53 @@ jobs:
           DO_HOST: ${{ secrets.DO_HOST }}
           DO_USERNAME: ${{ secrets.DO_USERNAME }}
           DO_SSH_KEY: ${{ secrets.DO_SSH_KEY }}
+          DO_PORT: ${{ secrets.DO_PORT }}
         run: |
           set -euo pipefail
 
+          : "${DO_PORT:=22}"
           mkdir -p ~/.ssh
-          
-          # Write SSH key with proper handling of newlines
-          echo "$DO_SSH_KEY" | base64 -d > ~/.ssh/id_rsa 2>/dev/null || echo "$DO_SSH_KEY" > ~/.ssh/id_rsa
+
+          if [[ -z "$DO_HOST" || -z "$DO_USERNAME" || -z "$DO_SSH_KEY" ]]; then
+            echo "ERROR: DO_HOST, DO_USERNAME, and DO_SSH_KEY must be configured"
+            exit 1
+          fi
+
+          # Accept either a raw private key or a Base64-encoded private key.
+          if [[ "$DO_SSH_KEY" == *"BEGIN "* ]]; then
+            printf '%s\n' "$DO_SSH_KEY" > ~/.ssh/id_rsa
+          else
+            if ! printf '%s' "$DO_SSH_KEY" | base64 --decode > ~/.ssh/id_rsa 2>/dev/null; then
+              echo "ERROR: DO_SSH_KEY is neither a PEM/OpenSSH key nor valid Base64"
+              exit 1
+            fi
+          fi
           chmod 600 ~/.ssh/id_rsa
-          
-          # Verify SSH key is valid
-          if ! ssh-keygen -l -f ~/.ssh/id_rsa > /dev/null 2>&1; then
+
+          if ! ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub 2>/dev/null; then
             echo "ERROR: Invalid SSH key format"
             exit 1
           fi
-          
-          # Add host to known_hosts with timeout and error checking
-          if ! ssh-keyscan -T 10 "$DO_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
-            echo "WARNING: ssh-keyscan failed, continuing anyway"
+
+          : > ~/.ssh/known_hosts
+          if ! ssh-keyscan -T 10 -p "$DO_PORT" "$DO_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+            echo "ERROR: Cannot reach $DO_HOST on SSH port $DO_PORT"
+            exit 1
           fi
-          
-          # Set correct permissions for known_hosts
           chmod 644 ~/.ssh/known_hosts
-          
-          # Test SSH connection
-          if ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_rsa "$DO_USERNAME@$DO_HOST" echo "SSH connection successful"; then
-            echo "ERROR: SSH connection test failed"
+
+          if ! ssh \
+            -o BatchMode=yes \
+            -o ConnectTimeout=15 \
+            -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey \
+            -o StrictHostKeyChecking=yes \
+            -p "$DO_PORT" \
+            -i ~/.ssh/id_rsa \
+            "$DO_USERNAME@$DO_HOST" \
+            'echo "SSH connection successful"'; then
+            echo "ERROR: SSH authentication failed for $DO_USERNAME@$DO_HOST:$DO_PORT"
+            echo "Check that this key's public key is in ~/.ssh/authorized_keys for that user."
             exit 1
           fi
 
