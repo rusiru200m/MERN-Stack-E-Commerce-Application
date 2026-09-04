@@ -227,4 +227,4 @@ jobs:
             docker image prune -af
             docker compose ps
 
-          REMOTE_SCRIPT   
+          REMOTE_SCRIPT
