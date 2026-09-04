@@ -191,40 +191,40 @@ jobs:
 
 
 
-      # - name: Deploy to DigitalOcean VPS
-      #   shell: bash
-      #   env:
-      #     IMAGE_TAG: ${{ needs.determine_environment.outputs.image_tag }}
-      #     ENVIRONMENT: ${{ needs.determine_environment.outputs.environment }}
-      #   run: |
-      #     ssh -i ~/.ssh/id_rsa \
-      #       '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
-      #       "IMAGE_TAG='${IMAGE_TAG}' \
-      #        ENVIRONMENT='${ENVIRONMENT}' \
-      #        GHCR_NAMESPACE='${{ env.GHCR_NAMESPACE }}' \
-      #        GHCR_USERNAME='${{ secrets.GHCR_USERNAME }}' \
-      #        GHCR_TOKEN='${{ secrets.GHCR_READ_TOKEN }}' \
-      #        bash -s" <<'REMOTE_SCRIPT'
+      - name: Deploy to DigitalOcean VPS
+        shell: bash
+        env:
+          IMAGE_TAG: ${{ needs.determine_environment.outputs.image_tag }}
+          ENVIRONMENT: ${{ needs.determine_environment.outputs.environment }}
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+            '${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }}' \
+            "IMAGE_TAG='${IMAGE_TAG}' \
+             ENVIRONMENT='${ENVIRONMENT}' \
+             GHCR_NAMESPACE='${{ env.GHCR_NAMESPACE }}' \
+             GHCR_USERNAME='${{ secrets.GHCR_USERNAME }}' \
+             GHCR_TOKEN='${{ secrets.GHCR_READ_TOKEN }}' \
+             bash -s" <<'REMOTE_SCRIPT'
 
-      #       set -euo pipefail
+            set -euo pipefail
 
-      #       APP_DIR="/var/www/ecommerce"
-      #       cd "$APP_DIR"
+            APP_DIR="/var/www/ecommerce"
+            cd "$APP_DIR"
 
-      #       echo "$GHCR_TOKEN" | docker login ghcr.io \
-      #         --username "$GHCR_USERNAME" \
-      #         --password-stdin
+            echo "$GHCR_TOKEN" | docker login ghcr.io \
+              --username "$GHCR_USERNAME" \
+              --password-stdin
 
-      #       cat > .env <<EOF
-      #       GHCR_NAMESPACE=${GHCR_NAMESPACE}
-      #       IMAGE_TAG=${IMAGE_TAG}
-      #       ENVIRONMENT=${ENVIRONMENT}
-      #       EOF
+            cat > .env <<EOF
+            GHCR_NAMESPACE=${GHCR_NAMESPACE}
+            IMAGE_TAG=${IMAGE_TAG}
+            ENVIRONMENT=${ENVIRONMENT}
+            EOF
 
-      #       docker compose --env-file .env pull
-      #       docker compose --env-file .env up -d --remove-orphans
+            docker compose --env-file .env pull
+            docker compose --env-file .env up -d --remove-orphans
 
-      #       docker image prune -af
-      #       docker compose ps
+            docker image prune -af
+            docker compose ps
 
-      #     REMOTE_SCRIPT   
+          REMOTE_SCRIPT   
